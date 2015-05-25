@@ -1,0 +1,386 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>KnockoutWinJS Demo</title>
+
+    <!-- KnockoutWinJS references -->
+    <link href="css/ui-dark.css" rel="stylesheet" />
+    <link href="css/index.css" rel="stylesheet" />
+
+    <!--KnockoutWinJS Dependencies-->    
+    <script src="dependencies/jquery.js"></script>
+    <script src="dependencies/knockout.js"></script>
+    <script src="dependencies/win.js"></script>
+    <script src="dependencies/knockout.extensions.min.js"></script>    
+
+    <!--KnockoutWinJS ViewModel-->
+    <script src="scripts/viewmodel.min.js"></script>
+
+    <!--Templates-->
+    <script id="Control" type="text/html">
+        <div id="target" data-bind="component: { name: $data.name, params: $data.options }"></div>
+    </script>
+    <script id="SemanticZoom" type="text/html">
+        <semanticzoom params="{as: $data.options}">
+            <listview params="{itemDataSource: $data.itemDataSource, groupDataSource: $data.groupDataSource}" class="semanticzoomIn" style="width:100%;">
+                <listview-itemtemplate>
+                    <tooltip params="{infotip: true, content: $data.label}">
+                        <commandbutton params="{as: $data}"></commandbutton>
+                    </tooltip>
+                </listview-itemtemplate>
+                <listview-groupheadertemplate>
+                    <div>
+                        <span data-bind="text: $data.data.header"></span>
+                        <span style="font-size: 14px;">
+                            (<span data-bind="text: $data.groupSize"></span>)
+                        </span>
+                    </div>
+                </listview-groupheadertemplate>
+            </listview>
+            <listview params="{itemDataSource: $data.groupDataSource}" class="semanticzoomOut" style="width:100%;">
+                <listview-itemtemplate>
+                    <div data-bind="text: $data.header" style="font-size: 35px; width: 50px; height:50px; text-align: center;"></div>
+                    <!--<span style="font-size: 14px;">
+                        (<span data-bind="text: $data.groupSize"></span>)
+                    </span>-->
+                </listview-itemtemplate>
+            </listview>
+        </semanticzoom>
+    </script>
+    <script id="SearchBox" type="text/html">
+        <div data-bind="SearchBox: $data.options"></div>
+        <listview params="{itemsSource: $data.itemsSource}">
+            <listview-itemtemplate>
+                <tooltip params="{infotip: true, content: $data.label}">
+                    <commandbutton params="{as: $data}"></commandbutton>
+                </tooltip>
+            </listview-itemtemplate>
+        </listview>
+    </script>
+    <script id="ItemContainer" type="text/html">
+        <div data-bind="foreach: $data.itemsSource">
+            <itemcontainer params="{as: $parent.options}">
+                <div data-bind="with: $data" style="height: 25px;">
+                    <span data-bind="text: $data.icon"></span>
+                </div>
+            </itemcontainer>
+        </div>
+    </script>
+    <script id="FlipView" type="text/html">
+        <flipview params="{as: $data.options}" class="debug">
+            <flipview-itemtemplate>
+                <commandbutton params="{as: $data}"></commandbutton>
+            </flipview-itemtemplate>
+        </flipview>
+    </script>
+    <script id="Hub" type="text/html">
+        <hub params="{as: $data.options}" style="height: 300px;">
+            <hubsection params="{header:'Section 1'}">
+                <div>Section 1</div>
+            </hubsection>
+            <hubsection params="{header:'Section 2'}">
+                <div>Section 2</div>
+            </hubsection>
+            <hubsection params="{header:'Section 3'}">
+                <div>Section 3</div>
+            </hubsection>
+            <hubsection params="{header:'Section 4'}">
+                <div>Section 4</div>
+            </hubsection>
+            <hubsection params="{header:'Section 5'}">
+                <div>Section 5</div>
+            </hubsection>
+        </hub>
+    </script>
+    <script id="SplitView" type="text/html">
+        <splitview params="{as: $data.options}">
+            <splitview-pane style="background-color: gray;">
+                <div style="float:left;">
+                    <commandbutton params="{label: 'open', icon: 'openpane', type: 'toggle',
+                               onclick: function(){ $data.options.paneHidden(!$data.options.paneHidden()); }}"
+                                   style="width: 35px;"></commandbutton>
+                </div>
+                <div style="margin-left: 50px; background-color: white; color: black;">
+                    <pivot>
+                        <div data-bind="PivotItem:{header:'Pivot Item 1'}">
+                            <div>Pivot Item 1</div>
+                        </div>
+                        <pivotitem params="{header:'Pivot Item 2'}">
+                            <div>Pivot Item 2</div>
+                        </pivotitem>
+                        <pivotitem params="{header:'Pivot Item 3'}">
+                            <div>Pivot Item 3</div>
+                        </pivotitem>
+                    </pivot>
+                </div>
+            </splitview-pane>
+            <splitview-content>
+                SPLITVIEW CONTENT
+            </splitview-content>
+        </splitview>
+    </script>
+    <script id="Flyout" type="text/html">
+        <div style="position: relative; width: 100%; height: 300px; background-color:darkgray;">
+            <flyout id="target" params="{as: $data.options}">
+                <div>Hello Flyout!</div>
+            </flyout>
+            <button data-bind="click: function(){$('#target_Control')[0].winControl.show($('#anchor')[0]);}"
+                    class="fill" style="width:100px; height: 30px;">
+                SHOW
+            </button>
+        </div>
+    </script>
+    <script id="SettingsFlyout" type="text/html">
+        <div style="position: relative; width: 100%; height: 300px; background-color:gray;">
+            <settingsflyout id="target" params="{as: $data.options}">
+                <div>Hello Settings Flyout!</div>
+            </settingsflyout>
+            <commandbutton id="settingsFlyoutCommand"
+                           params="{label: 'Settings', icon: 'settings', onclick: function(){$('#target_Control')[0].winControl.show($($element)[0]);}}"
+                           class="fill" style="width:75px; height:75px;"></commandbutton>
+        </div>
+    </script>
+    <script id="Pivot" type="text/html">
+        <pivot params="{as: $data.options}" style="height: 300px;">
+            <div data-bind="PivotItem:{header:'Pivot Item 1'}">
+                <div>Pivot Item 1</div>
+            </div>
+            <pivotitem params="{header:'Pivot Item 2'}">
+                <div>Pivot Item 2</div>
+            </pivotitem>
+            <pivotitem params="{header:'Pivot Item 3'}">
+                <div>Pivot Item 3</div>
+            </pivotitem>
+        </pivot>
+    </script>
+    <script id="ContentDialog" type="text/html">
+        <div style="position: relative; width: 100%; height: 300px; background-color:darkgray;">
+            <contentdialog id="target" params="{as: $data.options}" style="z-index:99999">
+                <div>Dialog Content</div>
+                <a>Dialog Content</a>
+                <div>Dialog Content</div>
+            </contentdialog>
+            <button data-bind="click: function(){$('#target_Control')[0].winControl.show($($element)[0]);}"
+                    class="fill" style="width:100px; height: 30px;">
+                SHOW
+            </button>
+        </div>
+    </script>
+    <script id="NavBar" type="text/html">
+        <navbar params="{as: $data.options}">
+            <div data-bind="NavBarContainer">
+                <navbarcommand params="{label: 'command 1', icon: 'edit'}"></navbarcommand>
+                <navbarcommand params="{label: 'command 2', icon: 'edit'}"></navbarcommand>
+                <!--<navbarcommand params="{label: 'command 1', icon: 'edit', splitButton: true}">
+                    <navbarcommand params="{label: 'command 1', icon: 'edit'}"></navbarcommand>
+                    <navbarcommand params="{label: 'command 1', icon: 'edit'}"></navbarcommand>
+                </navbarcommand>-->
+                <navbarcommand params="{label: 'command 3', icon: 'edit'}"></navbarcommand>
+            </div>
+            <navbarcontainer>
+                <navbarcommand params="{label: 'command 1', icon: 'edit'}"></navbarcommand>
+                <navbarcommand params="{label: 'command 2', icon: 'edit'}"></navbarcommand>
+                <navbarcommand params="{label: 'command 3', icon: 'edit'}"></navbarcommand>
+                <navbarcommand params="{label: 'command 4', icon: 'edit'}"></navbarcommand>
+                <navbarcommand params="{label: 'command 5', icon: 'edit'}"></navbarcommand>
+            </navbarcontainer>
+        </navbar>
+    </script>
+    <script id="NavBarContainer" type="text/html">
+        <pivot style="height: 300px;">
+            <pivotitem params="{header:'NavBarContainer (data-bind)'}">
+                <div data-bind="NavBarContainer: $data.options">
+                    <navbarcontainer-itemtemplate>
+                        <div data-bind="text: $data.label"></div>
+                    </navbarcontainer-itemtemplate>
+                    <navbarcommand params="{label: 'command 1', icon: 'edit'}"></navbarcommand>
+                    <navbarcommand params="{label: 'command 2', icon: 'edit'}"></navbarcommand>
+                    <navbarcommand params="{label: 'command 3', icon: 'edit'}"></navbarcommand>
+                    <navbarcommand params="{label: 'command 4', icon: 'edit'}"></navbarcommand>
+                </div>
+            </pivotitem>
+            <pivotitem params="{header:'NavBarContainer (component)'}">
+                <navbarcontainer params="{as: $data.options}"></navbarcontainer>
+            </pivotitem>
+        </pivot>
+    </script>
+    <script id="Menu" type="text/html">
+        <div style="position: relative; width: 100%; height: 300px; background-color:darkgray;">
+            <button id="showContextMenu" data-bind="click: function(){
+                       $('#targetContextMenu_Control').parent().appendTo('body');
+                       $('#targetContextMenu_Control')[0].winControl.show($('#anchor')[0]);/*$($element)[0]*/
+                       /*$('section').remove();*/
+                }" class="fill" style="width:100px; height: 30px;">
+                SHOW
+            </button>
+            <contextmenu id="targetContextMenu" params="{as: $data.options}">
+                <contextmenucommand params="{label: 'button 1'}"></contextmenucommand>
+                <contextmenucommand params="{label: 'button 2'}"></contextmenucommand>
+                <contextmenucommand params="{type: 'separator'}"></contextmenucommand>
+                <contextmenucommand params="{label: 'flyout 1', type: 'flyout', flyout: $('#commandFlyout_Control')[0]}"></contextmenucommand>
+                <contextmenucommand params="{label: 'toggle 1', type: 'toggle'}"></contextmenucommand>
+                <contextmenucommand params="{label: 'toggle 2', type: 'toggle'}"></contextmenucommand>
+                <contextmenucommand params="{label: 'toggle 3', type: 'toggle', selected: true}"></contextmenucommand>
+                <contextmenucommand params="{label: 'toggle 4', type: 'toggle', selected: true}"></contextmenucommand>
+            </contextmenu>
+        </div>
+    </script>
+    <script id="ToolBar" type="text/html">
+        <toolbar params="{as: $data.options}">
+            <commandbutton params="{label: 'priority 10', icon: 'edit', priority: 10}"></commandbutton>
+            <commandbutton params="{label: 'priority 9', icon: 'edit', priority: 9}"></commandbutton>
+            <commandbutton params="{label: 'priority 8', icon: 'edit', priority: 8}"></commandbutton>
+            <commandbutton params="{label: 'priority 7', icon: 'edit', priority: 7}"></commandbutton>
+            <commandbutton params="{label: 'priority 6', icon: 'edit', priority: 6}"></commandbutton>
+            <button data-bind="Command: {label: 'priority 5', icon: 'edit', priority: 5}"></button>
+            <commandbutton params="{label: 'priority 4', icon: 'edit', priority: 4}"></commandbutton>
+            <commandbutton params="{label: 'priority 3', icon: 'edit', priority: 3}"></commandbutton>
+            <commandbutton params="{label: 'priority 2', icon: 'edit', priority: 2}"></commandbutton>
+            <commandbutton params="{label: 'priority 1', icon: 'edit', priority: 1}"></commandbutton>
+            <commandbutton params="{label: 'priority 0', icon: 'edit', priority: 0}"></commandbutton>
+            <commandbutton params="{label: 'secondary', icon: 'add', section: 'secondary'}"></commandbutton>
+            <appbarcommand params="{label: 'secondary', icon: 'remove', section: 'secondary'}"></appbarcommand>
+        </toolbar>
+    </script>
+    <script id="Tooltip" type="text/html">
+        <tooltip params="{as: $data.options}">
+            <div style="background-color: red; width:100px; height:100px;"></div>
+        </tooltip>
+    </script>
+    <script id="ViewBox" type="text/html">
+        <viewbox params="{as: $data.options}">
+            <div style="background-color: red;"></div>
+        </viewbox>
+    </script>
+    <script id="ListView" type="text/html">
+        <listview params="{as: $data.options}">
+            <listview-itemtemplate>
+                <tooltip params="{infotip: true, content: $data.label}">
+                    <commandbutton params="$data"></commandbutton>
+                </tooltip>
+            </listview-itemtemplate>
+            <listview-groupheadertemplate>
+                <div>
+                    <span data-bind="text: $data.data.header"></span>
+                    <span style="font-size: 14px;">
+                        (<span data-bind="text: $data.groupSize"></span>)
+                    </span>
+                </div>
+            </listview-groupheadertemplate>
+            <listview-header>
+                <div>Header</div>
+            </listview-header>
+            <listview-footer>
+                <div>Footer</div>
+            </listview-footer>
+        </listview>
+    </script>
+</head>
+<body>        
+    <div class="fill" style="bottom: 45px;">
+        <splitview params="{hiddenDisplayMode: 'none', shownDisplayMode: 'inline', paneHidden: !$data.isPaneOpened()}">
+            <splitview-pane>
+                <!--<div data-bind="foreach: $data.items">
+                    <div data-bind="text: $data.type, click: $data.onclick, style: {color: $data.isReady ? 'green' : 'red'}"></div>
+                </div>--> 
+                <listview params="{itemsSource: $data.items, layout: 'list'}" class="fill" style="height:100%;">
+                    <listview-itemtemplate>
+                        <div data-bind="text: $data.type, click: $data.onclick, style: {color: $data.isReady ? 'green' : 'red'}"></div>
+                    </listview-itemtemplate>
+                </listview>
+            </splitview-pane>
+            <splitview-content>
+                <div data-bind="with: $data.target" class="right" style="width: 100%;">
+
+                    <div data-bind="text: $data.type"></div>
+                    <div data-bind="with: $data.header">
+                        <toolbar params="{itemsSource: $data.toolbar}"></toolbar>
+                    </div>
+                    <!--ko if: $data.content-->
+                    <!--/ko-->
+                    <div id="componentHost" data-bind="template: { name: $data.template, data: $data, afterRender: function(elements){
+                                    $data.onAfterRender(elements);
+                                    if($data.options && $data.options.anchor) {
+                                        $('#anchor').css({visibility: 'visible'});
+                                    }
+                                    else{
+                                        $('#anchor').css({visibility: 'hidden'});
+                                    }
+                } }" style="width:100%;"></div>
+                    <div class="bottom scroll-y" style="background-color: gray; max-height: 50%;">
+                        <table>
+                            <thead style="background-color: darkgrey;">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <!--<th>Active</th>-->
+                                    <th>Editor</th>
+                                    <th>Type</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody data-bind="foreach: $data.editors">
+                                <!--ko if: !$data.disabled-->
+                                <tr>
+                                    <td style="background-color:black;"><span data-bind="text: ($index() + 1)"></span></td>
+                                    <td><strong data-bind="text: $data.name"></strong></td>
+                                    <!--<td><input type="checkbox" data-bind="checked: $data.isActive" /></td>-->
+                                    <td>
+                                        <!--ko if: $data.type == 'number'-->
+                                        <input type="text" data-bind="value: $data.value" />
+                                        <!--/ko-->
+                                        <!--ko if: $data.type == 'string'-->
+                                        <input type="text" data-bind="value: $data.value" />
+                                        <!--/ko-->
+                                        <!--ko if: $data.type == 'object'-->
+                                        <input type="text" data-bind="disable: $data.disabled, value: $data.value" />
+                                        <button data-bind="click:function(){__DEBUG__($data.value(), 'object')}">DEBUG</button>
+                                        <!--/ko-->
+                                        <!--ko if: $data.type == 'boolean'-->
+                                        <input type="checkbox" data-bind="checked: $data.value" />
+                                        <!--/ko-->
+                                        <!--ko if: type == 'selector'-->
+                                        <select data-bind="options: $data.options, value: $data.value, optionsText: 'label', optionsValue: 'value'"></select>
+                                        <!--/ko-->
+                                        <!--ko if: $data.type == 'action'-->
+                                        <button data-bind="disable: $data.disabled, text: $data.name, click: function(){ alert($data.value);$data.value(); }"></button>
+                                        <!--/ko-->
+                                        <!--ko if: type == 'debug'-->
+                                        <button data-bind="click: function(){
+                                                __DEBUG__($data.value, 'debug')
+                                        }">
+                                            DEBUG
+                                        </button>
+                                        <!--/ko-->
+                                    </td>
+                                    <td>
+                                        <span data-bind="text: $data.type" style="display: inline-block;"></span>
+                                    </td>
+                                    <td>
+                                        <span data-bind="text: ko.unwrap($data.value)" style="display: inline-block;"></span>
+                                    </td>
+                                </tr>
+                                <!--/ko-->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="anchor" class="fill" style="width:100px; height: 25px; background-color:gray; visibility: hidden; text-align:center;">ANCHOR</div>
+                </div>
+            </splitview-content>
+        </splitview>
+    </div>
+    <appbar params="{itemsSource: $data.appcommands}"></appbar>
+    <flyout id="commandFlyout" params="{placement: 'right', alignment: 'center'}">
+        <!--<listview params="{itemsSource: $data.commands}" style="height: 100%;">
+            <listview-itemtemplate>
+                <commandbutton params="{as: $data}"></commandbutton>
+            </listview-itemtemplate>
+        </listview>-->
+    </flyout>
+    <!-- Cordova reference, this is added to your app when it's built. -->
+    <script src="cordova.js"></script>
+    <script src="scripts/platformOverrides.js"></script>
+    <script src="scripts/index.js"></script>
+</body>
+</html>
